@@ -25,12 +25,20 @@ sys.path.append('.')
 def get_parser():
     parser = argparse.ArgumentParser(description="Visualization of person reid results given features")
     parser.add_argument(
+        "--root_folder",
+        default="../Datasets",
+        type=str,
+        help="Root folder containing datasets"
+    )
+    parser.add_argument(
         "--dataset-name",
+        type=str,
         help="a test dataset name for visualizing ranking list."
     )
     parser.add_argument(
         "--input_dir",
         default="./cache",
+        type=str,
         help="Input root directory containing saved feats, pids and camids",
     )
     parser.add_argument(
@@ -46,6 +54,7 @@ def get_parser():
     parser.add_argument(
         "--output_dir",
         default="./output",
+        type=str,
         help="Output directory to save visualization result.",
     )
     parser.add_argument(
@@ -73,11 +82,13 @@ def get_parser():
     parser.add_argument(
         "--label-sort",
         default="descending",
+        type=str,
         help="label order of visualization images by cosine similarity metric",
     )
     parser.add_argument(
         "--max-rank",
         default=10,
+        type=int,
         help="maximum number of rank list to be visualized",
     )
     return parser
@@ -124,7 +135,7 @@ if __name__ == '__main__':
 
     assert os.path.isdir(args.input_dir), "Oops no input cache directory found"
 
-    _, query, gallery = load_accumulated_info_of_dataset(args.dataset_name, use_eval_set=args.use_eval_set, verbose=args.verbose)
+    _, query, gallery = load_accumulated_info_of_dataset(args.root_folder, args.dataset_name, use_eval_set=args.use_eval_set, verbose=args.verbose)
     num_query = pd.DataFrame(query)["image_file_path"].nunique()
     test_dataset =  query + gallery
 
@@ -153,7 +164,7 @@ if __name__ == '__main__':
 
     # remove_same_pid_camid will be True by default
     remove_same_pid_camid = not args.keep_pid_camid
-    visualizer.get_model_output(q_feats, g_feats, q_pids, g_pids, q_camids, g_camids, args.max_rank, remove_same_pid_camid=remove_same_pid_camid)
+    visualizer.get_model_output(q_feats, g_feats, q_pids, g_pids, q_camids, g_camids, max_rank=args.max_rank, remove_same_pid_camid=remove_same_pid_camid)
 
     # print("Start saving ROC curve ...")
     # fpr, tpr, pos, neg = visualizer.vis_roc_curve(args.output)
@@ -164,9 +175,8 @@ if __name__ == '__main__':
 
     print("Removing old output files ... ")
     shutil.rmtree(output_dir, ignore_errors=True)
-    os.mkdir(args.output_dir)
     os.mkdir(output_dir)
 
     print("Saving rank list result ...")
-    query_indices = visualizer.vis_rank_list(args.output, args.vis_label, args.num_vis, args.label_sort, args.max_rank)
+    query_indices = visualizer.vis_rank_list(output_dir, args.vis_label, args.num_vis, args.label_sort, args.max_rank)
     print("Finish saving rank list results!")

@@ -16,7 +16,4 @@ def load_accumulated_info_of_dataset(root_folder_path, dataset_name, **kwargs):
     train_and_valid_accumulated_info_dataframe, test_query_accumulated_info_dataframe, test_gallery_accumulated_info_dataframe = load_function(
         root_folder_path=root_folder_path, **kwargs)
 
-    assert not train_and_valid_accumulated_info_dataframe.isnull().values.any(
-    )  # All fields contain value
-
     return train_and_valid_accumulated_info_dataframe, test_query_accumulated_info_dataframe, test_gallery_accumulated_info_dataframe

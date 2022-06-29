@@ -5,7 +5,7 @@ import pandas as pd
 
 
 def _load_accumulated_info(root_folder_path,
-                           dataset_folder_name="market1501",
+                           dataset_folder_name="Market-1501-v15.09.15",
                            image_folder_name="bounding_box_train"):
     """
     References:

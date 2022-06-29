@@ -17,7 +17,7 @@ import faiss
 from time import time
 import cv2
 
-from .file_io import PathManager
+from file_io import PathManager
 
 def read_image_file(image_file_path):
     # Read image file
@@ -100,7 +100,7 @@ class Visualizer:
             cam_id = query_info['camera_ID']
             query_name = query_info['image_file_path'].split('/')[-1]
             all_imgs.append(query_img)
-            query_img = np.rollaxis(np.asarray(query_img.numpy(), dtype=np.uint8), 0, 3)
+            query_img = np.asarray(query_img, dtype=np.uint8)
             plt.clf()
             ax = fig.add_subplot(1, max_rank + 1, 1)
             ax.imshow(query_img)
@@ -116,8 +116,10 @@ class Visualizer:
                 gallery_img = read_image_file(gallery_info['image_file_path'])
                 cam_id = gallery_info['camera_ID']
                 all_imgs.append(gallery_img)
-                gallery_img = np.rollaxis(np.asarray(gallery_img, dtype=np.uint8), 0, 3)
+                gallery_img = np.asarray(gallery_img, dtype=np.uint8)
                 if cmc[i] == 1:
+                    import pdb
+                    pdb.set_trace()
                     label = 'true'
                     ax.add_patch(plt.Rectangle(xy=(0, 0), width=gallery_img.shape[1] - 1,
                                                height=gallery_img.shape[0] - 1, edgecolor=(1, 0, 0),
@@ -142,7 +144,7 @@ class Visualizer:
                     gallery_info = self.dataset[g_idx]
                     gallery_img = read_image_file(gallery_info['image_file_path'])
                     cam_id = gallery_info['camera_ID']
-                    gallery_img = np.rollaxis(np.asarray(gallery_img, dtype=np.uint8), 0, 3)
+                    gallery_img = np.asarray(gallery_img, dtype=np.uint8)
                     ax = fig.add_subplot(2, max_rank + 1, max_rank + 3 + i)
                     ax.add_patch(plt.Rectangle(xy=(0, 0), width=gallery_img.shape[1] - 1,
                                                height=gallery_img.shape[0] - 1,
