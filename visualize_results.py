@@ -39,7 +39,7 @@ def get_parser():
         "--input_dir",
         default="./cache",
         type=str,
-        help="Input root directory containing saved feats, pids and camids",
+        help="Input root directory containing saved feats, pids, camids and possibly imgpaths",
     )
     parser.add_argument(
         "--sep_query_gallery",
@@ -119,13 +119,19 @@ def load_saved_feat(dir=None):
     feat_file = os.path.join(dir, "feat.npy")
     pid_file = os.path.join(dir, "pid.npy")
     camid_file = os.path.join(dir, "camid.npy")
+    imgpath_file = os.path.join(dir, "imgpath.npy")
 
     assert os.path.isfile(feat_file), "Features not found"
     assert os.path.isfile(pid_file), "Pids not found"
     assert os.path.isfile(camid_file), "Camids not found"
 
+    if os.path.isfile(imgpath_file):
+        print("File containing saved image paths found")
+        return (np.load(feat_file, allow_pickle=True).astype(np.float32),\
+             np.load(pid_file, allow_pickle=True).astype(np.float32), np.load(camid_file, allow_pickle=True), np.load(imgpath_file, allow_pickle=True).tolist())    
+
     return (np.load(feat_file, allow_pickle=True).astype(np.float32),\
-         np.load(pid_file, allow_pickle=True).astype(np.float32), np.load(camid_file, allow_pickle=True))
+         np.load(pid_file, allow_pickle=True).astype(np.float32), np.load(camid_file, allow_pickle=True), None)
 
 
 if __name__ == '__main__':
@@ -141,7 +147,7 @@ if __name__ == '__main__':
 
     # Load saved features
     if not args.sep_query_gallery:
-        feats, pids, camids = load_saved_feat(os.path.join(args.input_dir, args.dataset_name))
+        feats, pids, camids, imgpaths = load_saved_feat(os.path.join(args.input_dir, args.dataset_name))
         q_feats = feats[:num_query]
         g_feats = feats[num_query:]
         q_pids = np.asarray(pids[:num_query])
@@ -149,8 +155,11 @@ if __name__ == '__main__':
         q_camids = np.asarray(camids[:num_query])
         g_camids = np.asarray(camids[num_query:])
     else:
-        q_feats, q_pids, q_camids = load_saved_feat(os.path.join(args.input_dir, args.dataset_name, "query"))
-        g_feats, g_pids, g_camids = load_saved_feat(os.path.join(args.input_dir, args.dataset_name, "gallery"))
+        q_feats, q_pids, q_camids, q_imgpaths = load_saved_feat(os.path.join(args.input_dir, args.dataset_name, "query"))
+        g_feats, g_pids, g_camids, g_imgpaths = load_saved_feat(os.path.join(args.input_dir, args.dataset_name, "gallery"))
+
+        if q_imgpaths is not None and g_imgpaths is not None:
+            imgpaths = q_imgpaths + g_imgpaths
 
 
     if args.verbose:
@@ -160,7 +169,7 @@ if __name__ == '__main__':
     # import pdb
     # pdb.set_trace()
 
-    visualizer = Visualizer(test_dataset)
+    visualizer = Visualizer(test_dataset, imgpaths)
 
     # remove_same_pid_camid will be True by default
     remove_same_pid_camid = not args.keep_pid_camid
