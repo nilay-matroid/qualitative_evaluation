@@ -160,6 +160,8 @@ if __name__ == '__main__':
 
         if q_imgpaths is not None and g_imgpaths is not None:
             imgpaths = q_imgpaths + g_imgpaths
+        else:
+            imgpaths = None
 
 
     if args.verbose:
