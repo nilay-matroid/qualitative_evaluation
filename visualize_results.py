@@ -80,6 +80,13 @@ def get_parser():
         "number of query images to be visualized",
     )
     parser.add_argument(
+        "--query_image_paths",
+        default="",
+        type=str,
+        help=
+        "Path to npy file containing images paths of queries to visualize output specifically",
+    )
+    parser.add_argument(
         "--label-sort",
         default="descending",
         type=str,
@@ -171,7 +178,12 @@ if __name__ == '__main__':
     # import pdb
     # pdb.set_trace()
 
-    visualizer = Visualizer(test_dataset, imgpaths)
+    if args.query_image_paths == "" or not os.path.isfile(args.query_image_paths):
+        query_image_paths = None
+    else:
+        query_image_paths = np.load(args.query_image_paths, allow_pickle=True).tolist()
+
+    visualizer = Visualizer(test_dataset, imgpaths, query_image_paths)
 
     # remove_same_pid_camid will be True by default
     remove_same_pid_camid = not args.keep_pid_camid
